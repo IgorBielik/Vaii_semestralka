@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Models;
+
+use Framework\Core\Model;
+
+class Wishlist extends Model
+{
+    protected static ?string $tableName = 'wishlists';
+    protected static ?string $primaryKey = 'id';
+
+    protected ?int $id = null;
+    protected int $user_id;
+    protected int $game_id;
+    protected ?string $added_at = null; // datetime string
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    public function getGameId(): int
+    {
+        return $this->game_id;
+    }
+
+    public function getAddedAt(): ?string
+    {
+        return $this->added_at;
+    }
+
+    public function setUserId(int $userId): void
+    {
+        $this->user_id = $userId;
+    }
+
+    public function setGameId(int $gameId): void
+    {
+        $this->game_id = $gameId;
+    }
+
+    public function setAddedAt(?string $addedAt): void
+    {
+        $this->added_at = $addedAt;
+    }
+
+    public static function forUser(int $userId): array
+    {
+        return static::getAll('user_id = :uid', ['uid' => $userId]);
+    }
+
+    public static function exists(int $userId, int $gameId): bool
+    {
+        $items = static::getAll('user_id = :uid AND game_id = :gid', ['uid' => $userId, 'gid' => $gameId], limit: 1);
+        return !empty($items);
+    }
+}
+

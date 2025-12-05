@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Configuration;
+use App\Models\User;
 use Exception;
 use Framework\Core\BaseController;
 use Framework\Http\Request;
@@ -47,14 +48,17 @@ class AuthController extends BaseController
     {
         $logged = null;
         if ($request->hasValue('submit')) {
-            $logged = $this->app->getAuthenticator()->login($request->value('username'), $request->value('password'));
+            // Treat username field from the form as email for DB-backed authentication
+            $email = $request->value('username');
+            $password = $request->value('password');
+            $logged = $this->app->getAuthenticator()?->login($email, $password) ?? false;
             if ($logged) {
-                return $this->redirect($this->url("admin.index"));
+                return $this->redirect($this->url('admin.index'));
             }
         }
 
         $message = $logged === false ? 'Bad username or password' : null;
-        return $this->html(compact("message"));
+        return $this->html(compact('message'));
     }
 
     /**
@@ -69,5 +73,54 @@ class AuthController extends BaseController
     {
         $this->app->getAuthenticator()->logout();
         return $this->html();
+    }
+
+    /**
+     * Registers a new user.
+     *
+     * This action handles user registration requests. It validates the provided data, creates a new user record in
+     * the database, and redirects the user to the login page upon successful registration.
+     *
+     * @return Response The response object which renders the registration view with error messages or redirects
+     *                  to the login page on successful registration.
+     * @throws Exception If there is an error during the registration process.
+     */
+    public function register(Request $request): Response
+    {
+        $errors = [];
+        $name = $request->value('name');
+        $email = $request->value('email');
+        $password = $request->value('password');
+        $passwordConfirm = $request->value('password_confirm');
+
+        if ($request->isPost()) {
+            if (!$name || !$email || !$password || !$passwordConfirm) {
+                $errors[] = 'Všetky polia sú povinné.';
+            }
+
+            if ($password !== $passwordConfirm) {
+                $errors[] = 'Heslá sa nezhodujú.';
+            }
+
+            if (empty($errors)) {
+                if (User::findByEmail($email) !== null) {
+                    $errors[] = 'Používateľ s týmto emailom už existuje.';
+                }
+            }
+
+            if (empty($errors)) {
+                $user = User::register($email, $password);
+                $user->setName($name);
+                $user->save();
+
+                return $this->redirect(Configuration::LOGIN_URL);
+            }
+        }
+
+        return $this->html([
+            'errors' => $errors,
+            'name' => $name,
+            'email' => $email,
+        ]);
     }
 }
