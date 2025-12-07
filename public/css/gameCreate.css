@@ -1,0 +1,53 @@
+/* Layout for game create/edit form */
+
+.game-create-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.game-create-left {
+    flex: 0 0 200px;
+    max-width: 240px;
+}
+
+.game-create-image-wrapper {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border: 1px dashed #ccc;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.game-create-image-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+
+.game-create-image-placeholder {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.game-create-right {
+    flex: 1 1 260px;
+}
+
+@media (max-width: 576px) {
+    .game-create-container {
+        flex-direction: column;
+    }
+
+    .game-create-left,
+    .game-create-right {
+        max-width: 100%;
+        flex: 1 1 100%;
+    }
+}
+

@@ -20,6 +20,7 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="<?= $link->asset('css/styl.css') ?>">
+    <link rel="stylesheet" href="<?= $link->asset('css/gameCreate.css') ?>">
     <script src="<?= $link->asset('js/script.js') ?>" type="module"></script>
 </head>
 <body>
@@ -55,10 +56,10 @@
         <?php } else { ?>
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= App\Configuration::LOGIN_URL ?>">Log in</a>
+                    <a class="nav-link auth-link" href="<?= App\Configuration::LOGIN_URL ?>">Log in</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= $link->url('auth.register') ?>">Register</a>
+                    <a class="nav-link auth-link" href="<?= $link->url('auth.register') ?>">Register</a>
                 </li>
             </ul>
         <?php } ?>

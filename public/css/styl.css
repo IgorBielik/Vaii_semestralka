@@ -5,3 +5,84 @@
 .navbar-brand img {
     width: 50px;
 }
+
+/* Global layout helpers */
+body {
+    background-color: rgba(248, 249, 250, 0.17);
+}
+
+.web-content {
+    padding: 1rem 0;
+}
+
+/* Center auth forms a bit better on small screens */
+.card-signin {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+}
+
+/* Game list table – make it scrollable on small screens */
+.table-responsive-custom {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Basic typography */
+h1, h2, h3, h4, h5 {
+    font-weight: 600;
+}
+
+/* Wishlist / game cards */
+.game-card {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.03);
+    margin-bottom: 0.75rem;
+}
+
+.game-card img {
+    max-width: 80px;
+    height: auto;
+    border-radius: 0.25rem;
+}
+
+.game-card-content {
+    flex: 1;
+}
+
+/* Navbar responsiveness tweaks */
+.navbar {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.navbar-nav .nav-link {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+/* On very small screens, stack navbar items vertically */
+@media (max-width: 576px) {
+    .navbar-brand img {
+        width: 40px;
+    }
+
+    .web-content {
+        padding: 0.5rem 0.25rem;
+    }
+
+    .game-card {
+        flex-direction: column;
+    }
+}
+
+/* Medium screens: slightly reduce padding */
+@media (max-width: 992px) {
+    .web-content {
+        padding: 0.75rem 0.5rem;
+    }
+}

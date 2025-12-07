@@ -102,8 +102,10 @@ class AuthController extends BaseController
                 $errors[] = 'Heslá sa nezhodujú.';
             }
 
+            // Server-side check: email už existuje v databáze?
             if (empty($errors)) {
-                if (User::findByEmail($email) !== null) {
+                $existingUser = User::findByEmail($email);
+                if ($existingUser !== null) {
                     $errors[] = 'Používateľ s týmto emailom už existuje.';
                 }
             }
