@@ -53,7 +53,7 @@ class AuthController extends BaseController
             $password = $request->value('password');
             $logged = $this->app->getAuthenticator()?->login($email, $password) ?? false;
             if ($logged) {
-                return $this->redirect($this->url('admin.index'));
+                return $this->redirect($this->url('home.index'));
             }
         }
 
