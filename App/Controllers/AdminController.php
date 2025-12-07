@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\Platform;
+use App\Models\Genre;
 use Framework\Core\BaseController;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
@@ -27,7 +29,8 @@ class AdminController extends BaseController
      */
     public function authorize(Request $request, string $action): bool
     {
-        return $this->user->isLoggedIn();
+        return $this->user->isLoggedIn()
+            && $this->user->getRole() === 'admin';
     }
 
     /**
@@ -39,6 +42,12 @@ class AdminController extends BaseController
      */
     public function index(Request $request): Response
     {
-        return $this->html();
+        $platforms = Platform::getAll();
+        $genres = Genre::getAll();
+
+        return $this->html([
+            'platforms' => $platforms,
+            'genres' => $genres,
+        ]);
     }
 }

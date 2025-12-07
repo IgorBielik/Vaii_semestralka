@@ -20,7 +20,7 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="<?= $link->asset('css/styl.css') ?>">
-    <script src="<?= $link->asset('js/script.js') ?>"></script>
+    <script src="<?= $link->asset('js/script.js') ?>" type="module"></script>
 </head>
 <body>
 <nav class="navbar navbar-expand-sm bg-light">
@@ -29,13 +29,25 @@
             <img src="<?= $link->asset('images/vaiicko_logo.png') ?>" title="<?= App\Configuration::APP_NAME ?>" alt="Framework Logo">
         </a>
         <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="<?= $link->url('home.contact') ?>">Contact</a>
-            </li>
+            <?php if ($user->isLoggedIn()) : ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $link->url('wishlist.index') ?>">Wishlist</a>
+                </li>
+                <?php if ($user->getRole() === 'admin') : ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= $link->url('admin.index') ?>">Manage</a>
+                    </li>
+                <?php endif; ?>
+            <?php endif; ?>
         </ul>
         <?php if ($user->isLoggedIn()) { ?>
-            <span class="navbar-text">Logged in user: <b><?= $user->getName() ?></b></span>
+            <span class="navbar-text me-3">Logged in user: <b><?= $user->getName() ?></b></span>
             <ul class="navbar-nav ms-auto">
+                <?php if ($user->getRole() === 'admin') : ?>
+                    <li class="nav-item me-2">
+                        <a class="btn btn-sm btn-success" href="<?= $link->url('game.create') ?>">Add game</a>
+                    </li>
+                <?php endif; ?>
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $link->url('auth.logout') ?>">Log out</a>
                 </li>
@@ -44,6 +56,9 @@
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="<?= App\Configuration::LOGIN_URL ?>">Log in</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $link->url('auth.register') ?>">Register</a>
                 </li>
             </ul>
         <?php } ?>

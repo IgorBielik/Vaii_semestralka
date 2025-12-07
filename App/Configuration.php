@@ -89,3 +89,53 @@ class Configuration
     // Session key for storing the user identity
     public const IDENTITY_SESSION_KEY = 'fw.session.user.identity';
 }
+
+// Register routes for game detail and update actions handled by GameController.
+return [
+    // ...existing routes...
+
+    'game.show' => [
+        'path' => '/game',
+        'controller' => 'GameController@show',
+    ],
+    'game.update' => [
+        'path' => '/game/update',
+        'controller' => 'GameController@update',
+    ],
+    'game.create' => [
+        'path' => '/game/create',
+        'controller' => 'GameController@create',
+    ],
+    'game.store' => [
+        'path' => '/game/store',
+        'controller' => 'GameController@store',
+    ],
+
+    'platform.store' => [
+        'path' => '/platform/store',
+        'controller' => 'PlatformController@store',
+    ],
+    'platform.update' => [
+        'path' => '/platform/update',
+        'controller' => 'PlatformController@update',
+    ],
+    'platform.delete' => [
+        'path' => '/platform/delete',
+        'controller' => 'PlatformController@delete',
+    ],
+
+    'genre.store' => [
+        'path' => '/genre/store',
+        'controller' => 'GenreController@store',
+    ],
+    'genre.update' => [
+        'path' => '/genre/update',
+        'controller' => 'GenreController@update',
+    ],
+    'genre.delete' => [
+        'path' => '/genre/delete',
+        'controller' => 'GenreController@delete',
+    ],
+
+    // ...existing routes...
+];

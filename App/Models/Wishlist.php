@@ -6,7 +6,7 @@ use Framework\Core\Model;
 
 class Wishlist extends Model
 {
-    protected static ?string $tableName = 'wishlists';
+    protected static ?string $tableName = 'wishlist';
     protected static ?string $primaryKey = 'id';
 
     protected ?int $id = null;
@@ -59,5 +59,33 @@ class Wishlist extends Model
         $items = static::getAll('user_id = :uid AND game_id = :gid', ['uid' => $userId, 'gid' => $gameId], limit: 1);
         return !empty($items);
     }
-}
 
+    public static function addGame(int $userId, int $gameId): bool
+    {
+        // Ak už hra vo wishliste je, nič nerobíme
+        if (static::exists($userId, $gameId)) {
+            return false;
+        }
+
+        $wishlist = new self();
+        $wishlist->setUserId($userId);
+        $wishlist->setGameId($gameId);
+        $wishlist->setAddedAt(date('Y-m-d H:i:s'));
+        $wishlist->save();
+        return true;
+    }
+
+    public static function removeGame(int $userId, int $gameId): bool
+    {
+        // Nájdeme záznam pre daného používateľa a hru
+        $items = static::getAll('user_id = :uid AND game_id = :gid', ['uid' => $userId, 'gid' => $gameId], limit: 1);
+        if (empty($items)) {
+            return false;
+        }
+
+        /** @var self $item */
+        $item = $items[0];
+        $item->delete();
+        return true;
+    }
+}

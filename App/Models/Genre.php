@@ -6,11 +6,11 @@ use Framework\Core\Model;
 
 class Genre extends Model
 {
-    protected static ?string $tableName = 'game_genres';
+    protected static ?string $tableName = 'genre';
     protected static ?string $primaryKey = 'id';
+    protected  ?string $description = null;
 
     protected ?int $id = null;
-    protected int $game_id;
     protected string $name;
 
     public function getId(): ?int
@@ -18,19 +18,9 @@ class Genre extends Model
         return $this->id;
     }
 
-    public function getGameId(): int
-    {
-        return $this->game_id;
-    }
-
     public function getName(): string
     {
         return $this->name;
-    }
-
-    public function setGameId(int $gameId): void
-    {
-        $this->game_id = $gameId;
     }
 
     public function setName(string $name): void
@@ -38,8 +28,13 @@ class Genre extends Model
         $this->name = trim($name);
     }
 
-    public static function findByGame(int $gameId): array
+    public function getDescription(): ?string
     {
-        return static::getAll('game_id = :gid', ['gid' => $gameId]);
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
     }
 }

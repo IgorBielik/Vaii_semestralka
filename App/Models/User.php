@@ -23,7 +23,7 @@ class User extends Model implements IIdentity
     protected ?int $id = null;
 
     /** @var string Display name of the user */
-    protected string $name;
+    protected string $name = '';
 
     /** @var string User email (unique) */
     protected string $email;
@@ -120,7 +120,7 @@ class User extends Model implements IIdentity
         return $this->role === 'admin';
     }
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }

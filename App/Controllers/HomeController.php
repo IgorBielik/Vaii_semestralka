@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\Game;
+use App\Models\Wishlist;
 use Framework\Core\BaseController;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
@@ -39,7 +41,43 @@ class HomeController extends BaseController
      */
     public function index(Request $request): Response
     {
-        return $this->html();
+        $order = $request->get('order') ?? 'date';   // name|price|date
+        $dir   = strtolower($request->get('dir') ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
+
+        // základný ORDER BY podľa parametrov
+        switch ($order) {
+            case 'name':
+                $orderBy = "name $dir";
+                break;
+            case 'price':
+                $orderBy = "base_price_eur $dir";
+                break;
+            case 'date':
+            default:
+                // najprv hry s najbližším dátumom, NULL (TBA) na koniec
+                $orderBy = "(global_release_date IS NULL), global_release_date $dir";
+                $order   = 'date';
+                break;
+        }
+
+        $games = Game::getAll(null, [], $orderBy);
+
+        // Zoznam game_id, ktoré má aktuálny používateľ vo wishliste
+        $wishlistGameIds = [];
+        if ($this->user->isLoggedIn()) {
+            $items = Wishlist::forUser($this->user->getId());
+            foreach ($items as $item) {
+                /** @var Wishlist $item */
+                $wishlistGameIds[] = $item->getGameId();
+            }
+        }
+
+        return $this->html([
+            'games'           => $games,
+            'wishlistGameIds' => $wishlistGameIds,
+            'order'           => $order,
+            'dir'             => $dir,
+        ]);
     }
 
     /**
