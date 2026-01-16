@@ -48,8 +48,8 @@ class AuthController extends BaseController
     {
         $logged = null;
         if ($request->hasValue('submit')) {
-            // Treat username field from the form as email for DB-backed authentication
-            $email = $request->value('username');
+            // Now read 'email' from the form instead of 'username'
+            $email = $request->value('email');
             $password = $request->value('password');
             $logged = $this->app->getAuthenticator()?->login($email, $password) ?? false;
             if ($logged) {

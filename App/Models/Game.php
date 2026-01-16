@@ -21,6 +21,7 @@ class Game extends Model
     protected int $is_dlc = 0;
     protected int $is_early_access = 0;
     protected ?string $description = null;
+    protected ?string $cover_image = null; // filename or path to cover image
 
     // Basic getters
     public function getId(): ?int
@@ -58,6 +59,11 @@ class Game extends Model
         return (bool)$this->is_early_access;
     }
 
+    public function getCoverImage(): ?string
+    {
+        return $this->cover_image;
+    }
+
     // Setters with simple normalization/validation hooks
     public function setName(string $name): void
     {
@@ -87,6 +93,11 @@ class Game extends Model
     public function setIsEarlyAccess(bool $isEarly): void
     {
         $this->is_early_access = $isEarly ? 1 : 0;
+    }
+
+    public function setCoverImage(?string $coverImage): void
+    {
+        $this->cover_image = $coverImage !== null ? trim($coverImage) : null;
     }
 
     // --- New helpers for N:M relations ---

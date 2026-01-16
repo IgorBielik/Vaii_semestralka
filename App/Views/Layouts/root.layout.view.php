@@ -42,8 +42,10 @@
             <?php endif; ?>
         </ul>
         <?php if ($user->isLoggedIn()) { ?>
-            <span class="navbar-text me-3">Logged in user: <b><?= $user->getName() ?></b></span>
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item me-3">
+                    <span class="navbar-text"><strong><?= $user->getName() ?></strong></span>
+                </li>
                 <?php if ($user->getRole() === 'admin') : ?>
                     <li class="nav-item me-2">
                         <a class="btn btn-sm btn-success" href="<?= $link->url('game.create') ?>">Add game</a>

@@ -11,7 +11,12 @@ $view->setLayout('auth');
 <div class="container">
     <div class="row">
         <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
-            <div class="card card-signin my-5">
+            <div class="card card-signin my-5 position-relative">
+                <!-- Back to home icon in the corner -->
+                <a href="<?= $link->url('home.index') ?>" class="position-absolute"
+                   style="top: 0.5rem; right: 0.75rem; text-decoration: none; font-size: 1.3rem;">
+                    &#x2190;
+                </a>
                 <div class="card-body">
                     <h5 class="card-title text-center">Registrácia</h5>
 
@@ -72,14 +77,14 @@ $view->setLayout('auth');
                             >
                         </div>
 
-                        <div class="text-center">
+                        <div class="text-center mb-2">
                             <button class="btn btn-primary" type="submit" name="submit">
                                 Registrovať sa
                             </button>
                         </div>
                     </form>
 
-                    <div class="mt-3 text-center">
+                    <div class="mt-2 text-center">
                         <a href="<?= $link->url('login') ?>">Už máš účet? Prihlás sa.</a>
                     </div>
                 </div>
