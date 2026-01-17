@@ -19,7 +19,7 @@
 
     <div class="row">
         <!-- Platforms column -->
-        <div class="col-md-6 mb-4">
+        <div class="col-12 col-md-6 mb-4">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>Platforms</span>
@@ -32,36 +32,38 @@
                     <?php if (empty($platforms)): ?>
                         <p>No platforms defined yet.</p>
                     <?php else: ?>
-                        <table class="table table-sm align-middle" id="platform-table">
-                            <thead>
-                            <tr>
-                                <th style="width: 70%">Name</th>
-                                <th style="width: 30%" class="text-end">Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php foreach ($platforms as $platform): ?>
-                                <tr data-name="<?= htmlspecialchars(strtolower($platform->getName())) ?>">
-                                    <td>
-                                        <form class="d-flex" method="post" action="<?= $link->url('platform.update') ?>">
-                                            <input type="hidden" name="id" value="<?= (int)$platform->getId() ?>">
-                                            <div class="flex-grow-1">
-                                                <label class="form-label visually-hidden" for="platform-name-<?= (int)$platform->getId() ?>">Platform name</label>
-                                                <input type="text" id="platform-name-<?= (int)$platform->getId() ?>" name="name" class="form-control form-control-sm" value="<?= htmlspecialchars($platform->getName()) ?>" required>
-                                            </div>
-                                            <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
-                                        </form>
-                                    </td>
-                                    <td class="text-end">
-                                        <form method="post" action="<?= $link->url('platform.delete') ?>" onsubmit="return confirm('Delete this platform?');">
-                                            <input type="hidden" name="id" value="<?= (int)$platform->getId() ?>">
-                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                        </form>
-                                    </td>
+                        <div class="admin-list-scroll">
+                            <table class="table table-sm align-middle" id="platform-table">
+                                <thead>
+                                <tr>
+                                    <th style="width: 70%">Name</th>
+                                    <th style="width: 30%" class="text-end">Actions</th>
                                 </tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($platforms as $platform): ?>
+                                    <tr data-name="<?= htmlspecialchars(strtolower($platform->getName())) ?>">
+                                        <td>
+                                            <form class="d-flex" method="post" action="<?= $link->url('platform.update') ?>">
+                                                <input type="hidden" name="id" value="<?= (int)$platform->getId() ?>">
+                                                <div class="flex-grow-1">
+                                                    <label class="form-label visually-hidden" for="platform-name-<?= (int)$platform->getId() ?>">Platform name</label>
+                                                    <input type="text" id="platform-name-<?= (int)$platform->getId() ?>" name="name" class="form-control form-control-sm" value="<?= htmlspecialchars($platform->getName()) ?>" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
+                                            </form>
+                                        </td>
+                                        <td class="text-end">
+                                            <form method="post" action="<?= $link->url('platform.delete') ?>" onsubmit="return confirm('Delete this platform?');">
+                                                <input type="hidden" name="id" value="<?= (int)$platform->getId() ?>">
+                                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php endif; ?>
 
                     <hr>
@@ -80,7 +82,7 @@
         </div>
 
         <!-- Genres column -->
-        <div class="col-md-6 mb-4">
+        <div class="col-12 col-md-6 mb-4">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>Genres</span>
@@ -93,36 +95,38 @@
                     <?php if (empty($genres)): ?>
                         <p>No genres defined yet.</p>
                     <?php else: ?>
-                        <table class="table table-sm align-middle" id="genre-table">
-                            <thead>
-                            <tr>
-                                <th style="width: 70%">Name</th>
-                                <th style="width: 30%" class="text-end">Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php foreach ($genres as $genre): ?>
-                                <tr data-name="<?= htmlspecialchars(strtolower($genre->getName())) ?>">
-                                    <td>
-                                        <form class="d-flex" method="post" action="<?= $link->url('genre.update') ?>">
-                                            <input type="hidden" name="id" value="<?= (int)$genre->getId() ?>">
-                                            <div class="flex-grow-1">
-                                                <label class="form-label visually-hidden" for="genre-name-<?= (int)$genre->getId() ?>">Genre name</label>
-                                                <input type="text" id="genre-name-<?= (int)$genre->getId() ?>" name="name" class="form-control form-control-sm" value="<?= htmlspecialchars($genre->getName()) ?>" required>
-                                            </div>
-                                            <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
-                                        </form>
-                                    </td>
-                                    <td class="text-end">
-                                        <form method="post" action="<?= $link->url('genre.delete') ?>" onsubmit="return confirm('Delete this genre?');">
-                                            <input type="hidden" name="id" value="<?= (int)$genre->getId() ?>">
-                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                        </form>
-                                    </td>
+                        <div class="admin-list-scroll">
+                            <table class="table table-sm align-middle" id="genre-table">
+                                <thead>
+                                <tr>
+                                    <th style="width: 70%">Name</th>
+                                    <th style="width: 30%" class="text-end">Actions</th>
                                 </tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($genres as $genre): ?>
+                                    <tr data-name="<?= htmlspecialchars(strtolower($genre->getName())) ?>">
+                                        <td>
+                                            <form class="d-flex" method="post" action="<?= $link->url('genre.update') ?>">
+                                                <input type="hidden" name="id" value="<?= (int)$genre->getId() ?>">
+                                                <div class="flex-grow-1">
+                                                    <label class="form-label visually-hidden" for="genre-name-<?= (int)$genre->getId() ?>">Genre name</label>
+                                                    <input type="text" id="genre-name-<?= (int)$genre->getId() ?>" name="name" class="form-control form-control-sm" value="<?= htmlspecialchars($genre->getName()) ?>" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-sm btn-primary ms-2">Save</button>
+                                            </form>
+                                        </td>
+                                        <td class="text-end">
+                                            <form method="post" action="<?= $link->url('genre.delete') ?>" onsubmit="return confirm('Delete this genre?');">
+                                                <input type="hidden" name="id" value="<?= (int)$genre->getId() ?>">
+                                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php endif; ?>
 
                     <hr>
@@ -141,3 +145,4 @@
         </div>
     </div>
 </div>
+

@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="<?= $link->asset('css/styl.css') ?>">
     <link rel="stylesheet" href="<?= $link->asset('css/gameCreate.css') ?>">
     <script src="<?= $link->asset('js/script.js') ?>" type="module"></script>
+    <script src="<?= $link->asset('js/admin.js') ?>" defer></script>
 </head>
 <body>
 <nav class="navbar navbar-expand-sm bg-light">
@@ -38,6 +39,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="<?= $link->url('admin.index') ?>">Manage</a>
                     </li>
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-sm btn-success" href="<?= $link->url('game.create') ?>">Add game</a>
+                    </li>
                 <?php endif; ?>
             <?php endif; ?>
         </ul>
@@ -46,11 +50,6 @@
                 <li class="nav-item me-3">
                     <span class="navbar-text"><strong><?= $user->getName() ?></strong></span>
                 </li>
-                <?php if ($user->getRole() === 'admin') : ?>
-                    <li class="nav-item me-2">
-                        <a class="btn btn-sm btn-success" href="<?= $link->url('game.create') ?>">Add game</a>
-                    </li>
-                <?php endif; ?>
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $link->url('auth.logout') ?>">Log out</a>
                 </li>

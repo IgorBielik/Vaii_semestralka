@@ -110,6 +110,10 @@ return [
         'path' => '/game/store',
         'controller' => 'GameController@store',
     ],
+    'game.edit' => [
+        'path' => '/game/edit',
+        'controller' => 'GameController@edit',
+    ],
 
     'platform.store' => [
         'path' => '/platform/store',

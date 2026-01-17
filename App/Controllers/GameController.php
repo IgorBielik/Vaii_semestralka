@@ -19,7 +19,7 @@ class GameController extends BaseController
             return true;
         }
 
-        // Ostatné akcie (create, store, update) len pre adminov
+        // Ostatné akcie (create, store, update, edit) len pre adminov
         $identity = $this->user->getIdentity();
         return $identity instanceof User && $identity->isAdmin();
     }
@@ -92,10 +92,32 @@ class GameController extends BaseController
             $game->setBasePriceEur((float)$post['price_eur']);
         }
 
+        // update description if present in the edit form
+        if (isset($post['description'])) {
+            $game->setDescription($post['description']);
+        }
+
         $game->setIsDlc(isset($post['is_dlc']));
         $game->setIsEarlyAccess(isset($post['is_early_access']));
 
+        // After saving basic fields, also sync genres and platforms from the edit form
+        $genreIds = $post['genres'] ?? [];
+        $platformIds = $post['platforms'] ?? [];
+
         $game->save();
+
+        if (!empty($genreIds)) {
+            $game->syncGenres($genreIds);
+        } else {
+            // if nothing selected, clear relations
+            $game->syncGenres([]);
+        }
+
+        if (!empty($platformIds)) {
+            $game->syncPlatforms($platformIds, null, null);
+        } else {
+            $game->syncPlatforms([], null, null);
+        }
 
         return $this->redirect($this->url('game.show', ['id' => $game->getId()]));
     }
@@ -134,6 +156,10 @@ class GameController extends BaseController
         $game->setBasePriceEur(($data['base_price_eur'] ?? '') !== '' ? (float)$data['base_price_eur'] : null);
         $game->setIsDlc(!empty($data['is_dlc']));
         $game->setIsEarlyAccess(!empty($data['is_early_access']));
+        // new: save description from create form if provided
+        if (isset($data['description'])) {
+            $game->setDescription($data['description']);
+        }
 
         $game->save();
 
@@ -151,5 +177,28 @@ class GameController extends BaseController
         }
 
         return $this->redirect($this->url('game.show', ['id' => $game->getId()]));
+    }
+
+    public function edit(Request $request): Response
+    {
+        // len admin (authorize to vyrieši)
+        $id = (int)($request->get('id') ?? 0);
+        if ($id <= 0) {
+            return $this->redirect($this->url('home.index'));
+        }
+
+        $game = Game::getOne($id);
+        if (!$game) {
+            return $this->redirect($this->url('home.index'));
+        }
+
+        $genres = Genre::getAll(orderBy: 'name');
+        $platforms = Platform::getAll(orderBy: 'name');
+
+        return $this->html([
+            'game' => $game,
+            'genres' => $genres,
+            'platforms' => $platforms,
+        ], '/edit'); // App/Views/Game/edit.view.php
     }
 }

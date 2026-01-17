@@ -86,3 +86,31 @@ h1, h2, h3, h4, h5 {
         padding: 0.75rem 0.5rem;
     }
 }
+
+/* Scrollable admin lists (platforms, genres) so they don't grow indefinitely */
+.admin-list-scroll {
+    overflow-y: auto;
+    display: block;
+}
+
+/* Height of admin lists adapts to device size */
+@media (max-width: 576px) {
+    /* phones: show menej riadkov, vyšší scroll */
+    .admin-list-scroll {
+        max-height: 200px;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 991px) {
+    /* tablety / menšie notebooky */
+    .admin-list-scroll {
+        max-height: 260px;
+    }
+}
+
+@media (min-width: 992px) {
+    /* väčšie displeje: viac riadkov viditeľných naraz */
+    .admin-list-scroll {
+        max-height: 320px;
+    }
+}
