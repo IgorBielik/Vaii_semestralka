@@ -9,14 +9,10 @@
 
     <form method="post" action="<?= $link->url('game.store') ?>" enctype="multipart/form-data">
         <div class="game-create-container mt-3">
-            <!-- Left: cover image picker -->
+            <!-- Left: cover image URL input -->
             <div class="game-create-left">
-                <label for="cover_image" class="form-label">Cover image</label>
-                <div class="game-create-image-wrapper" id="cover-image-wrapper">
-                    <span class="game-create-image-placeholder">Click to choose image</span>
-                    <img id="cover-image-preview" src="" alt="Cover preview" style="display: none;">
-                </div>
-                <input type="file" name="cover_image" id="cover_image" accept="image/*" class="d-none">
+                <label for="cover_image" class="form-label">Cover image URL</label>
+                <input type="url" name="cover_image" id="cover_image" class="form-control" placeholder="https://example.com/image.jpg">
             </div>
 
             <!-- Right: main fields -->

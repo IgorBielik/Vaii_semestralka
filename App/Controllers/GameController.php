@@ -64,8 +64,7 @@ class GameController extends BaseController
             return $this->redirect($this->url('home.index'));
         }
 
-        $post = $request->post();
-        $id = isset($post['id']) ? (int)$post['id'] : 0;
+        $id = (int)($request->post('id') ?? 0);
         if ($id <= 0) {
             return $this->redirect($this->url('home.index'));
         }
@@ -75,34 +74,11 @@ class GameController extends BaseController
             return $this->redirect($this->url('home.index'));
         }
 
-        // Použijeme public settre podľa Game modelu
-        if (isset($post['name'])) {
-            $game->setName($post['name']);
-        }
-
-        if (isset($post['publisher'])) {
-            $game->setPublisher($post['publisher']);
-        }
-
-        if (isset($post['release_date']) && $post['release_date'] !== '') {
-            $game->setGlobalReleaseDate($post['release_date']);
-        }
-
-        if (isset($post['price_eur']) && $post['price_eur'] !== '') {
-            $game->setBasePriceEur((float)$post['price_eur']);
-        }
-
-        // update description if present in the edit form
-        if (isset($post['description'])) {
-            $game->setDescription($post['description']);
-        }
-
-        $game->setIsDlc(isset($post['is_dlc']));
-        $game->setIsEarlyAccess(isset($post['is_early_access']));
+        $this->fillGameFromRequest($game, $request);
 
         // After saving basic fields, also sync genres and platforms from the edit form
-        $genreIds = $post['genres'] ?? [];
-        $platformIds = $post['platforms'] ?? [];
+        $genreIds = $request->post('genres') ?? [];
+        $platformIds = $request->post('platforms') ?? [];
 
         $game->save();
 
@@ -161,6 +137,10 @@ class GameController extends BaseController
             $game->setDescription($data['description']);
         }
 
+        // Cover image URL from text input; store null when empty
+        $imageUrl = isset($data['cover_image']) && trim($data['cover_image']) !== '' ? trim($data['cover_image']) : null;
+        $game->setImageUrl($imageUrl);
+
         $game->save();
 
         // asociácie žánrov a platforiem (bez per-platform dátumu/ceny)
@@ -200,5 +180,22 @@ class GameController extends BaseController
             'genres' => $genres,
             'platforms' => $platforms,
         ], '/edit'); // App/Views/Game/edit.view.php
+    }
+
+    private function fillGameFromRequest(Game $game, Request $request): void
+    {
+        $post = $request->post();
+
+        $game->setName($post['name'] ?? '');
+        $game->setPublisher($post['publisher'] ?? null);
+        $game->setGlobalReleaseDate($post['global_release_date'] ?? null);
+        $game->setBasePriceEur(isset($post['base_price_eur']) && $post['base_price_eur'] !== '' ? (float)$post['base_price_eur'] : null);
+        $game->setIsDlc(!empty($post['is_dlc']));
+        $game->setIsEarlyAccess(!empty($post['is_early_access']));
+        $game->setDescription($post['description'] ?? '');
+
+        // Cover image URL from text input; store null when empty
+        $imageUrl = isset($post['cover_image']) && trim($post['cover_image']) !== '' ? trim($post['cover_image']) : null;
+        $game->setImageUrl($imageUrl);
     }
 }

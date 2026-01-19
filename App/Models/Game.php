@@ -21,7 +21,7 @@ class Game extends Model
     protected int $is_dlc = 0;
     protected int $is_early_access = 0;
     protected ?string $description = null;
-    protected ?string $cover_image = null; // filename or path to cover image
+    protected ?string $image_url = null; // filename or path to cover image
 
     // Basic getters
     public function getId(): ?int
@@ -59,9 +59,17 @@ class Game extends Model
         return (bool)$this->is_early_access;
     }
 
-    public function getCoverImage(): ?string
+    public function getImageUrl(): ?string
     {
-        return $this->cover_image;
+        return $this->image_url;
+    }
+
+    /**
+     * Convenience for views: if image_url is null/empty, return empty string.
+     */
+    public function getImageUrlOrEmpty(): string
+    {
+        return $this->image_url ?: '';
     }
 
     // Setters with simple normalization/validation hooks
@@ -95,9 +103,9 @@ class Game extends Model
         $this->is_early_access = $isEarly ? 1 : 0;
     }
 
-    public function setCoverImage(?string $coverImage): void
+    public function setImageUrl(?string $url): void
     {
-        $this->cover_image = $coverImage !== null ? trim($coverImage) : null;
+        $this->image_url = $url !== null ? trim($url) : null;
     }
 
     // --- New helpers for N:M relations ---
@@ -217,5 +225,64 @@ class Game extends Model
     public function setDescription(string $description): void
     {
         $this->description = $description;
+    }
+
+    /**
+     * Filter games by selected genre IDs, platform IDs and optional search term.
+     * All selected genres and all selected platforms must be present for a game to match.
+     *
+     * @param int[] $genreIds
+     * @param int[] $platformIds
+     * @param string|null $search
+     * @return Game[]
+     */
+    public static function filterGames(array $genreIds = [], array $platformIds = [], ?string $search = null): array
+    {
+        $genreIds = array_values(array_filter(array_map('intval', $genreIds)));
+        $platformIds = array_values(array_filter(array_map('intval', $platformIds)));
+        $search = $search !== null ? trim($search) : '';
+
+        $params = [];
+        $joins = [];
+        $wheres = [];
+        $havingParts = [];
+
+        if (!empty($genreIds)) {
+            $placeholders = implode(',', array_fill(0, count($genreIds), '?'));
+            $joins[] = "LEFT JOIN game_genre gg ON gg.game_id = g.id AND gg.genre_id IN ($placeholders)";
+            $havingParts[] = 'COUNT(DISTINCT gg.genre_id) = ' . count($genreIds);
+            $params = array_merge($params, $genreIds);
+        }
+
+        if (!empty($platformIds)) {
+            $placeholders = implode(',', array_fill(0, count($platformIds), '?'));
+            $joins[] = "LEFT JOIN game_platform gp ON gp.game_id = g.id AND gp.platform_id IN ($placeholders)";
+            $havingParts[] = 'COUNT(DISTINCT gp.platform_id) = ' . count($platformIds);
+            $params = array_merge($params, $platformIds);
+        }
+
+        if ($search !== '') {
+            $wheres[] = '(g.name LIKE ? OR g.publisher LIKE ?)';
+
+            $params[] = '%' . $search . '%';
+            $params[] = '%' . $search . '%';
+        }
+
+        $sql = 'SELECT g.* FROM game g ' . implode(' ', $joins);
+        if (!empty($wheres)) {
+            $sql .= ' WHERE ' . implode(' AND ', $wheres);
+        }
+        if (!empty($havingParts)) {
+            $sql .= ' GROUP BY g.id HAVING ' . implode(' AND ', $havingParts);
+        } else {
+            $sql .= ' GROUP BY g.id';
+        }
+        $sql .= ' ORDER BY (g.global_release_date IS NULL), g.global_release_date ASC';
+
+        $pdo = Connection::getInstance();
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, self::class);
     }
 }

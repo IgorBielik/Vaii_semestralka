@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Models\Game;
 use App\Models\Wishlist;
+use App\Models\Genre;
+use App\Models\Platform;
 use Framework\Core\BaseController;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
@@ -60,7 +62,33 @@ class HomeController extends BaseController
                 break;
         }
 
-        $games = Game::getAll(null, [], $orderBy);
+        // Pagination params
+        $perPage = 5;
+        $page = max(1, (int)($request->get('page') ?? 1));
+
+        // Filters from GET
+        $genreIds = $request->get('genres') ?? [];
+        $platformIds = $request->get('platforms') ?? [];
+        $search = $request->get('search') ?? null;
+
+        $genreIds = array_values(array_filter(array_map('intval', (array)$genreIds)));
+        $platformIds = array_values(array_filter(array_map('intval', (array)$platformIds)));
+        $search = $search !== null ? trim((string)$search) : null;
+
+        // Get all matching games (for now) and then paginate in PHP
+        if (!empty($genreIds) || !empty($platformIds) || ($search !== null && $search !== '')) {
+            $allGames = Game::filterGames($genreIds, $platformIds, $search);
+        } else {
+            $allGames = Game::getAll(null, [], $orderBy);
+        }
+
+        $totalGames = count($allGames);
+        $totalPages = max(1, (int)ceil($totalGames / $perPage));
+        if ($page > $totalPages) {
+            $page = $totalPages;
+        }
+        $offset = ($page - 1) * $perPage;
+        $games = array_slice($allGames, $offset, $perPage);
 
         // Zoznam game_id, ktoré má aktuálny používateľ vo wishliste
         $wishlistGameIds = [];
@@ -72,11 +100,22 @@ class HomeController extends BaseController
             }
         }
 
+        // Pre filter navbar na hlavnej stránke – všetky žánre a platformy
+        $genres    = Genre::getAll();
+        $platforms = Platform::getAll();
+
         return $this->html([
-            'games'           => $games,
-            'wishlistGameIds' => $wishlistGameIds,
-            'order'           => $order,
-            'dir'             => $dir,
+            'games'             => $games,
+            'wishlistGameIds'   => $wishlistGameIds,
+            'order'             => $order,
+            'dir'               => $dir,
+            'genres'            => $genres,
+            'platforms'         => $platforms,
+            'selectedGenres'    => $genreIds,
+            'selectedPlatforms' => $platformIds,
+            'searchTerm'        => $search,
+            'page'              => $page,
+            'totalPages'        => $totalPages,
         ]);
     }
 

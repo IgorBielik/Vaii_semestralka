@@ -25,6 +25,7 @@ CREATE TABLE `game` (
                         `base_price_eur` DECIMAL(8,2) DEFAULT NULL,
                         `global_release_date` DATE DEFAULT NULL,
                         `description` TEXT DEFAULT NULL,
+                        `image` VARCHAR(512) DEFAULT NULL,
                         PRIMARY KEY (`id`),
                         KEY `idx_game_name` (`name`),
                         KEY `idx_game_global_release_date` (`global_release_date`)
