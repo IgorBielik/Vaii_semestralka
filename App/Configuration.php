@@ -141,5 +141,11 @@ return [
         'controller' => 'GenreController@delete',
     ],
 
+    // AJAX route for registration email check
+    'auth.checkEmail' => [
+        'path' => '/auth/check-email',
+        'controller' => 'AuthController@checkEmail',
+    ],
+
     // ...existing routes...
 ];

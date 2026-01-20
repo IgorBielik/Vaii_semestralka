@@ -9,6 +9,7 @@ use Framework\Core\BaseController;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
 use Framework\Http\Responses\ViewResponse;
+use Framework\Http\Responses\JsonResponse;
 
 /**
  * Class AuthController
@@ -124,5 +125,22 @@ class AuthController extends BaseController
             'name' => $name,
             'email' => $email,
         ]);
+    }
+
+    /**
+     * AJAX endpoint: checks whether a user with given email already exists.
+     * Returns JSON: { exists: bool }
+     */
+    public function checkEmail(Request $request): Response
+    {
+        $email = trim((string)($request->get('email') ?? ''));
+        $exists = false;
+
+        if ($email !== '') {
+            $user = User::findByEmail($email);
+            $exists = $user !== null;
+        }
+
+        return new JsonResponse(['exists' => $exists]);
     }
 }

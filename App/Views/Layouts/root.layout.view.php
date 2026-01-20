@@ -91,7 +91,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-<script src="<?= $link->asset('js/script.js') ?>" type="module"></script>
+<script src="<?= $link->asset('js/addRemoveWish.js') ?>"></script>
 <script src="<?= $link->asset('js/admin.js') ?>" defer></script>
 <script src="<?= $link->asset('js/filters.js') ?>" defer></script>
 </body>

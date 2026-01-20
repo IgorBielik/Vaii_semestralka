@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Platform;
+use App\Models\GamePlatform;
 use App\Models\User;
 use Framework\Core\BaseController;
 use Framework\Http\Request;
@@ -77,6 +78,9 @@ class PlatformController extends BaseController
 
         $platform = Platform::getOne($id);
         if ($platform) {
+            // Najprv odstránime všetky väzby v game_platform (priame SQL cez GamePlatform)
+            GamePlatform::deleteAllByPlatform($id);
+            // Potom samotnú platformu
             $platform->delete();
         }
 

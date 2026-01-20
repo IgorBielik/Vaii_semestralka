@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Genre;
+use App\Models\GameGenre;
 use App\Models\User;
 use Framework\Core\BaseController;
 use Framework\Http\Request;
@@ -77,10 +78,12 @@ class GenreController extends BaseController
 
         $genre = Genre::getOne($id);
         if ($genre) {
+            // Najprv odstránime všetky väzby v game_genre (priame SQL cez GameGenre)
+            GameGenre::deleteAllByGenre($id);
+            // Potom samotný žáner
             $genre->delete();
         }
 
         return $this->redirect($this->url('admin.index'));
     }
 }
-

@@ -8,7 +8,7 @@ class Platform extends Model
 {
     protected static ?string $tableName = 'platform';
     protected static ?string $primaryKey = 'id';
-    protected  ?string $description = null;
+    protected ?string $description = null;
 
     protected ?int $id = null;
     protected string $name;

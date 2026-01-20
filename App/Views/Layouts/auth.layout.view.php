@@ -28,5 +28,7 @@
         <?= $contentHTML ?>
     </div>
 </div>
+<!-- Registration form validation -->
+<script src="<?= $link->asset('js/register.js') ?>"></script>
 </body>
 </html>

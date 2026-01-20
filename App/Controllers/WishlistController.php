@@ -7,6 +7,7 @@ use App\Models\Game;
 use Framework\Core\BaseController;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
+use Framework\Http\Responses\JsonResponse;
 
 class WishlistController extends BaseController
 {
@@ -53,8 +54,17 @@ class WishlistController extends BaseController
         $post = $request->post();
         $gameId = isset($post['game_id']) ? (int)$post['game_id'] : 0;
 
+        $added = false;
         if ($gameId > 0) {
-            Wishlist::addGame($userId, $gameId);
+            $added = Wishlist::addGame($userId, $gameId);
+        }
+
+        // Ak ide o AJAX (fetch), vrátime JSON namiesto redirectu
+        if ($request->isAjax()) {
+            return new JsonResponse([
+                'success' => $added,
+                'inWishlist' => $added,
+            ]);
         }
 
         return $this->redirect($this->url('home.index'));
@@ -72,8 +82,16 @@ class WishlistController extends BaseController
         $post = $request->post();
         $gameId = isset($post['game_id']) ? (int)$post['game_id'] : 0;
 
+        $removed = false;
         if ($gameId > 0) {
-            Wishlist::removeGame($userId, $gameId);
+            $removed = Wishlist::removeGame($userId, $gameId);
+        }
+
+        if ($request->isAjax()) {
+            return new JsonResponse([
+                'success' => $removed,
+                'inWishlist' => !$removed,
+            ]);
         }
 
         return $this->redirect($this->url('wishlist.index'));

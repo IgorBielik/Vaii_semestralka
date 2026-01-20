@@ -8,7 +8,7 @@ class Genre extends Model
 {
     protected static ?string $tableName = 'genre';
     protected static ?string $primaryKey = 'id';
-    protected  ?string $description = null;
+    protected ?string $description = null;
 
     protected ?int $id = null;
     protected string $name;
