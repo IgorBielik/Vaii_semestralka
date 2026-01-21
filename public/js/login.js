@@ -1,4 +1,5 @@
 // Login form validation and alert handling
+/*vypracované pomocou AI*/
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form[action*="login"]');
     if (!form) return;
