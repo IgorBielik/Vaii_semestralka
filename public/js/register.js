@@ -3,7 +3,7 @@
 // - check that password confirmation matches
 // - check that password has at least 8 characters
 // - check via AJAX whether email already exists in DB
-
+/*vypracované pomocou AI*/
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form[action*="register"]');
     if (!form) return;
@@ -73,6 +73,29 @@ document.addEventListener('DOMContentLoaded', function () {
         validatePasswordMatch();
     });
 
+    // --- Email validation ---
+    function validateEmailFormat() {
+        clearError(emailInput);
+        const email = emailInput.value.trim();
+
+        /*if (email === '') {
+            return true; // prázdny email je OK (kontrolujeme až pri submite)
+        }*/
+
+        // Jednoduchá regex pre email validáciu
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setError(emailInput, 'Email musí mať správny formát (napr. user@example.com).');
+            return false;
+        }
+
+        return true;
+    }
+
+    emailInput.addEventListener('blur', function () {
+        validateEmailFormat();
+    });
+
     // --- AJAX email check ---
     let emailCheckTimeout = null;
     let lastCheckedEmail = '';
@@ -83,6 +106,11 @@ document.addEventListener('DOMContentLoaded', function () {
         clearError(emailInput);
 
         if (email === '') {
+            return;
+        }
+
+        // Skontroluj formát email pred AJAX volaním
+        if (!validateEmailFormat()) {
             return;
         }
 
@@ -119,6 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
+
     emailInput.addEventListener('input', function () {
         clearError(emailInput);
         if (emailCheckTimeout) {
@@ -140,6 +169,9 @@ document.addEventListener('DOMContentLoaded', function () {
     form.addEventListener('submit', function (e) {
         let ok = true;
 
+        if (!validateEmailFormat()) {
+            ok = false;
+        }
         if (!validatePasswordLength()) {
             ok = false;
         }

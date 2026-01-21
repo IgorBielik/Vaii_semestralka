@@ -1,7 +1,7 @@
 // Minimal JS for home page wishlist Add/Remove via AJAX
 // Assumes a table with id="games-table" containing forms that post to
 // routes that end with "wishlist.add" or "wishlist.remove".
-
+/*vypracované pomocou AI*/
 document.addEventListener('DOMContentLoaded', function () {
     const gamesTable = document.getElementById('games-table');
     if (!gamesTable) return;

@@ -1,4 +1,5 @@
 // Wishlist search and sort functionality
+/*vypracované pomocou AI*/
 document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('wishlist-search');
     const sortSelect = document.getElementById('wishlist-sort');

@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS `user`;
 
 CREATE TABLE `user` (
                         `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+
                         `email` VARCHAR(255) NOT NULL,
                         `name` VARCHAR(255) NOT NULL,
                         `password_hash` VARCHAR(255) NOT NULL,
@@ -55,6 +56,7 @@ CREATE TABLE `game_platform` (
                                  `release_date` DATE,
                                  `price_eur` DECIMAL(8,2) DEFAULT NULL,
                                  PRIMARY KEY (`game_id`, `platform_id`),
+
                                  KEY `idx_game_platform_game_id` (`game_id`),
                                  KEY `idx_game_platform_platform_id` (`platform_id`),
                                  KEY `idx_game_platform_platform_date` (`platform_id`, `release_date`),
@@ -103,3 +105,6 @@ CREATE TABLE `wishlist` (
                                     ON DELETE CASCADE
                                     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE game
+    ADD COLUMN image_url VARCHAR(512);

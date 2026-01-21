@@ -8,6 +8,7 @@ you will need to have docker and docker-compose installed on your machine. you c
 directory and run command `docker-compose up -d --build` to build and start the containers. or if you have php storm you
 can open the docker-compose.yml file and run it from there.
 After the containers are up and running you can access the website at `http://localhost/`
+you can find the database tables in sql/Db.sql file. you can import it to your database using adminer
 
 # About Vaiicko - PHP MVC Framework
 This framework was created to support the teaching of the subject Development of intranet and intranet applications

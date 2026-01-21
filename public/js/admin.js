@@ -1,3 +1,4 @@
+/*vypracované pomocou AI*/
 document.addEventListener('DOMContentLoaded', () => {
     function setupTableFilter(inputId, tableId) {
         const input = document.getElementById(inputId);
