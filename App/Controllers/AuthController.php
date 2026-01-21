@@ -47,19 +47,26 @@ class AuthController extends BaseController
      */
     public function login(Request $request): Response
     {
-        $logged = null;
-        if ($request->hasValue('submit')) {
-            // Now read 'email' from the form instead of 'username'
-            $email = $request->value('email');
-            $password = $request->value('password');
+        $email = '';
+        $message = null;
+
+        if ($request->isPost()) {
+            $email = trim((string)($request->value('email') ?? ''));
+            $password = (string)($request->value('password') ?? '');
+
+            // Server-side kontrola prihlásenia
             $logged = $this->app->getAuthenticator()?->login($email, $password) ?? false;
             if ($logged) {
                 return $this->redirect($this->url('home.index'));
+            } else {
+                $message = 'Email alebo heslo je nesprávne.';
             }
         }
 
-        $message = $logged === false ? 'Bad username or password' : null;
-        return $this->html(compact('message'));
+        return $this->html([
+            'message' => $message,
+            'email' => $email,
+        ]);
     }
 
     /**
@@ -99,9 +106,6 @@ class AuthController extends BaseController
                 $errors[] = 'Všetky polia sú povinné.';
             }
 
-            if ($password !== $passwordConfirm) {
-                $errors[] = 'Heslá sa nezhodujú.';
-            }
 
             // Server-side check: email už existuje v databáze?
             if (empty($errors)) {

@@ -1,6 +1,6 @@
 /*vypracované pomocou AI*/
 .navbar {
-    border-bottom: 1px solid grey;
+    border-bottom: 1px solid #f8f9fa;
     /* keep Bootstrap’s default padding and layout */
 }
 
@@ -10,7 +10,7 @@
 
 /* Global layout helpers */
 body {
-    background-color: rgba(248, 249, 250, 0.17);
+    background-color: rgb(248, 249, 250);
 }
 
 .web-content {
@@ -23,37 +23,108 @@ body {
     box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
 }
 
-/* Game list table – make it scrollable on small screens */
-.table-responsive-custom {
-    width: 100%;
-    overflow-x: auto;
-}
-
 /* Basic typography */
 h1, h2, h3, h4, h5 {
     font-weight: 600;
 }
 
 /* Wishlist / game cards */
-.game-card {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
+
+/* Links - add color and underline on hover */
+a {
+    color: #0d6efd;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #0b5ed7;
+    text-decoration: underline;
+}
+
+/* Tables - basic styling */
+table {
+    border-collapse: collapse;
+}
+
+table thead {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+table th {
     padding: 0.75rem;
-    border-radius: 0.5rem;
-    background-color: #ffffff;
-    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.03);
-    margin-bottom: 0.75rem;
+    text-align: left;
+    border-bottom: 2px solid #dee2e6;
 }
 
-.game-card img {
-    max-width: 80px;
-    height: auto;
-    border-radius: 0.25rem;
+table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #dee2e6;
 }
 
-.game-card-content {
-    flex: 1;
+table tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.1s ease;
+}
+
+/* Forms - input styling */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    transition: border-color 0.15s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+    border-color: #0d6efd;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+
+/* Buttons - add hover effect */
+.btn {
+    transition: all 0.15s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Badges styling */
+.badge {
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.375rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Cards - subtle shadow and border */
+.card {
+    border: 1px solid #dee2e6;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: box-shadow 0.15s ease;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
 
 /* Navbar responsiveness tweaks */
@@ -62,7 +133,7 @@ h1, h2, h3, h4, h5 {
     padding-right: 0.5rem;
 }
 
-/* On very small screens, stack navbar items vertically */
+/* On very small screens, adjust spacing */
 @media (max-width: 576px) {
     .navbar-brand img {
         width: 40px;
@@ -72,8 +143,10 @@ h1, h2, h3, h4, h5 {
         padding: 0.5rem 0.25rem;
     }
 
-    .game-card {
-        flex-direction: column;
+    table th,
+    table td {
+        padding: 0.5rem;
+        font-size: 0.875rem;
     }
 }
 

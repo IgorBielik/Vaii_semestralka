@@ -19,9 +19,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= $link->asset('css/styl.css') ?>">
-    <link rel="stylesheet" href="<?= $link->asset('css/gameCreate.css') ?>">
 </head>
-<body class="bg-light d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100">
 
 <header>
     <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
