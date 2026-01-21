@@ -23,20 +23,6 @@ body {
     box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
 }
 
-/* Basic typography */
-h1, h2, h3, h4, h5 {
-    font-weight: 600;
-}
-
-/* Wishlist / game cards */
-
-/* Links - add color and underline on hover */
-a {
-    color: #0d6efd;
-    text-decoration: none;
-    transition: color 0.2s ease;
-}
-
 a:hover {
     color: #0b5ed7;
     text-decoration: underline;
@@ -47,26 +33,14 @@ table {
     border-collapse: collapse;
 }
 
-table thead {
-    background-color: #f8f9fa;
-    font-weight: 600;
-}
-
 table th {
-    padding: 0.75rem;
-    text-align: left;
-    border-bottom: 2px solid #dee2e6;
+    border-bottom: 2px solid rgb(75, 76, 76);
 }
 
 table td {
-    padding: 0.75rem;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid rgba(94, 96, 96, 0.4);
 }
 
-table tbody tr:hover {
-    background-color: #f8f9fa;
-    transition: background-color 0.1s ease;
-}
 
 /* Forms - input styling */
 input[type="text"],
@@ -92,7 +66,6 @@ select:focus {
     outline: none;
     box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
-
 
 /* Buttons - add hover effect */
 .btn {
