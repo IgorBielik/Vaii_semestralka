@@ -1,5 +1,5 @@
 <?php
-
+/*vypracované pomocou AI*/
 namespace App\Models;
 
 use Framework\Core\Model;

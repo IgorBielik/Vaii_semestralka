@@ -1,7 +1,13 @@
 <?php
+/*vypracované pomocou AI*/
 /** @var \Framework\Support\LinkGenerator $link */
 /** @var \App\Models\Game $game */
 /** @var bool $isAdmin */
+/** @var string $platformText */
+/** @var string $genreText */
+/** @var string $imageUrl */
+/** @var string $releaseDate */
+/** @var string $priceFormatted */
 ?>
 
 <div class="container mt-4">
@@ -12,36 +18,6 @@
             <a href="<?= $link->url('game.edit', ['id' => $game->getId()]) ?>" class="btn btn-sm btn-primary">EDIT</a>
         <?php endif; ?>
     </div>
-
-    <?php
-    // Prepare image URL (or empty string if none)
-    $imageUrl = method_exists($game, 'getImageUrlOrEmpty')
-        ? $game->getImageUrlOrEmpty()
-        : ($game->getImageUrl() ?? '');
-
-    // Description as non-null string
-    $description = trim($game->getDescription() ?? '');
-
-    // Build simple text lists for platforms and genres
-    $platformNames = [];
-    foreach ($game->getPlatforms() as $platform) {
-        /** @var \App\Models\Platform $platform */
-        $platformNames[] = $platform->getName();
-    }
-
-    $genreNames = [];
-    foreach ($game->getGenres() as $genre) {
-        /** @var \App\Models\Genre $genre */
-        $genreNames[] = $genre->getName();
-    }
-
-    $platformText = implode(', ', $platformNames);
-    $genreText    = implode(', ', $genreNames);
-
-    $releaseDate = $game->getGlobalReleaseDate() ?? 'TBA';
-    $price       = $game->getBasePriceEur();
-    $publisher   = $game->getPublisher() ?? '';
-    ?>
 
     <div class="row g-4">
         <!-- Cover image -->
@@ -59,6 +35,7 @@
 
         <!-- Game info -->
         <div class="col-md-8">
+            <?php $description = trim($game->getDescription()); ?>
             <?php if ($description !== ''): ?>
                 <div class="mb-3">
                     <h5>Description</h5>
@@ -73,13 +50,11 @@
                 </div>
                 <div class="col-sm-6 mb-2">
                     <strong>Price:</strong>
-                    <span class="ms-1">
-                        <?= $price !== null ? htmlspecialchars(number_format($price, 2)) . ' €' : 'N/A' ?>
-                    </span>
+                    <span class="ms-1"><?= htmlspecialchars($priceFormatted) ?></span>
                 </div>
                 <div class="col-sm-6 mb-2">
                     <strong>Publisher:</strong>
-                    <span class="ms-1"><?= htmlspecialchars($publisher) ?></span>
+                    <span class="ms-1"><?= htmlspecialchars($game->getPublisher() ?? '') ?></span>
                 </div>
 
                 <?php if ($platformText !== ''): ?>

@@ -1,5 +1,5 @@
 <?php
-
+/*vypracované pomocou AI*/
 /** @var \Framework\Support\LinkGenerator $link */
 /** @var \Framework\Auth\AppUser $user */
 /** @var \App\Models\Platform[] $platforms */

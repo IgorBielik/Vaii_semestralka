@@ -1,5 +1,5 @@
 <?php
-
+/*vypracované pomocou AI*/
 namespace App\Controllers;
 
 use App\Models\Platform;

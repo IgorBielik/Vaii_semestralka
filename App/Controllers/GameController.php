@@ -1,5 +1,5 @@
 <?php
-
+/*vypracované pomocou AI*/
 namespace App\Controllers;
 
 use App\Models\Game;
@@ -19,7 +19,7 @@ class GameController extends BaseController
             return true;
         }
 
-        // Ostatné akcie (create, store, update, edit) len pre adminov
+        // Ostatné akcie (create, store, update, edit, delete) len pre adminov
         $identity = $this->user->getIdentity();
         return $identity instanceof User && $identity->isAdmin();
     }
@@ -39,7 +39,6 @@ class GameController extends BaseController
 
         $game = Game::getOne($id);
         if (!$game) {
-            // Ak hra neexistuje, môžeme presmerovať na home alebo zobraziť error view
             return $this->redirect($this->url('home.index'));
         }
 
@@ -49,6 +48,11 @@ class GameController extends BaseController
         return $this->html([
             'game' => $game,
             'isAdmin' => $isAdmin,
+            'platformText' => $this->getGamePlatformText($game),
+            'genreText' => $this->getGameGenreText($game),
+            'imageUrl' => $this->getGameImageUrl($game),
+            'releaseDate' => $this->getGameReleaseDate($game),
+            'priceFormatted' => $this->getGamePriceFormatted($game),
         ]);
     }
 
@@ -175,11 +179,53 @@ class GameController extends BaseController
         $genres = Genre::getAll(orderBy: 'name');
         $platforms = Platform::getAll(orderBy: 'name');
 
+        // Prepare current genre and platform IDs for pre-selecting options
+        $currentGenreIds = [];
+        foreach ($game->getGenres() as $g) {
+            $currentGenreIds[] = $g->getId();
+        }
+
+        $currentPlatformIds = [];
+        foreach ($game->getPlatforms() as $p) {
+            $currentPlatformIds[] = $p->getId();
+        }
+
         return $this->html([
             'game' => $game,
             'genres' => $genres,
             'platforms' => $platforms,
-        ], '/edit'); // App/Views/Game/edit.view.php
+            'currentGenreIds' => $currentGenreIds,
+            'currentPlatformIds' => $currentPlatformIds,
+        ], '/edit');
+    }
+
+    public function delete(Request $request): Response
+    {
+        // Only POST allowed
+        if (!$request->isPost()) {
+            return $this->redirect($this->url('home.index'));
+        }
+
+        $identity = $this->user->getIdentity();
+        if (!($identity instanceof User) || !$identity->isAdmin()) {
+            return $this->redirect($this->url('home.index'));
+        }
+
+        $id = (int)($request->post('id') ?? 0);
+        if ($id <= 0) {
+            return $this->redirect($this->url('home.index'));
+        }
+
+        $game = Game::getOne($id);
+        if (!$game) {
+            return $this->redirect($this->url('home.index'));
+        }
+
+        // Delete game with all relations (game_genre, game_platform, wishlist)
+        $game->deleteWithRelations();
+
+        // Redirect to home after deletion
+        return $this->redirect($this->url('home.index'));
     }
 
     private function fillGameFromRequest(Game $game, Request $request): void
@@ -197,5 +243,54 @@ class GameController extends BaseController
         // Cover image URL from text input; store null when empty
         $imageUrl = isset($post['cover_image']) && trim($post['cover_image']) !== '' ? trim($post['cover_image']) : null;
         $game->setImageUrl($imageUrl);
+    }
+
+    /**
+     * Get formatted platform names for display (comma-separated).
+     */
+    private function getGamePlatformText(Game $game): string
+    {
+        $platformNames = [];
+        foreach ($game->getPlatforms() as $platform) {
+            $platformNames[] = $platform->getName();
+        }
+        return implode(', ', $platformNames);
+    }
+
+    /**
+     * Get formatted genre names for display (comma-separated).
+     */
+    private function getGameGenreText(Game $game): string
+    {
+        $genreNames = [];
+        foreach ($game->getGenres() as $genre) {
+            $genreNames[] = $genre->getName();
+        }
+        return implode(', ', $genreNames);
+    }
+
+    /**
+     * Get game image URL, fallback to empty string if none.
+     */
+    private function getGameImageUrl(Game $game): string
+    {
+        return $game->getImageUrl() ?? '';
+    }
+
+    /**
+     * Get formatted release date or 'TBA' if not set.
+     */
+    private function getGameReleaseDate(Game $game): string
+    {
+        return $game->getGlobalReleaseDate() ?? 'TBA';
+    }
+
+    /**
+     * Get formatted price with currency or 'N/A'.
+     */
+    private function getGamePriceFormatted(Game $game): string
+    {
+        $price = $game->getBasePriceEur();
+        return $price !== null ? number_format($price, 2) . ' €' : 'N/A';
     }
 }

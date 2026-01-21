@@ -1,5 +1,5 @@
 <?php
-
+/*vypracované pomocou AI*/
 namespace App\Models;
 
 use Framework\Core\Model;
@@ -87,5 +87,17 @@ class Wishlist extends Model
         $item = $items[0];
         $item->delete();
         return true;
+    }
+
+    /**
+     * Delete all wishlist entries for a specific game.
+     */
+    public static function deleteByGame(int $gameId): void
+    {
+        $items = static::getAll('game_id = :gid', ['gid' => $gameId]);
+        foreach ($items as $item) {
+            /** @var self $item */
+            $item->delete();
+        }
     }
 }

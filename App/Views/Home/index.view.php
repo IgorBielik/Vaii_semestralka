@@ -1,15 +1,18 @@
 <?php
-
+/*vypracované pomocou AI*/
 /** @var \Framework\Support\LinkGenerator $link */
 /** @var \Framework\Auth\AppUser $user */
 /** @var \App\Models\Game[] $games */
 /** @var int[] $wishlistGameIds */
+/** @var array<int,bool> $wishlistMap */
 /** @var string $order */
 /** @var string $dir */
 /** @var \App\Models\Genre[] $genres */
 /** @var \App\Models\Platform[] $platforms */
 /** @var int $page */
 /** @var int $totalPages */
+/** @var array<string,string> $sortLinks */
+/** @var array{prev: array{url:string,disabled:bool}, next: array{url:string,disabled:bool}, pages: array<int,array{number:int,url:string,isActive:bool}>} $pagination */
 ?>
 
 <div class="container web-content">
@@ -87,51 +90,44 @@
             <?php if (empty($games)) : ?>
                 <p>No upcoming games found.</p>
             <?php else : ?>
-                <?php
-                $toggleDir = fn(string $col) => ($order === $col && strtolower($dir) === 'asc') ? 'desc' : 'asc';
-                $sortUrl = function (string $col) use ($link, $toggleDir, $order) {
-                    $dir = $toggleDir($col);
-                    return $link->url('home.index', ['order' => $col, 'dir' => $dir]);
-                };
-                ?>
 
                 <div class="table-responsive-custom">
                     <table class="table align-middle" id="games-table">
 
                         <thead>
                         <tr>
-                            <th>Cover</th>
+                            <th class="d-none d-lg-table-cell">Cover</th>
 
-                            <th>
-                                <a href="<?= $sortUrl('name') ?>" class="text-decoration-none">
+                            <th class="d-none d-md-table-cell">
+                                <a href="<?= $sortLinks['name'] ?>" class="text-decoration-none">
                                     Name
                                     <?php if ($order === 'name'): ?>
-                                        <?= strtolower($dir) === 'asc' ? '▲' : '▼' ?>
+                                        <?= $dir === 'asc' ? '▲' : '▼' ?>
                                     <?php endif; ?>
                                 </a>
                             </th>
 
-                            <th>Tags</th>
+                            <th class="d-none d-lg-table-cell">Tags</th>
 
-                            <th>
-                                <a href="<?= $sortUrl('price') ?>" class="text-decoration-none">
+                            <th class="d-none d-lg-table-cell">
+                                <a href="<?= $sortLinks['price'] ?>" class="text-decoration-none">
                                     Price
                                     <?php if ($order === 'price'): ?>
-                                        <?= strtolower($dir) === 'asc' ? '▲' : '▼' ?>
+                                        <?= $dir === 'asc' ? '▲' : '▼' ?>
                                     <?php endif; ?>
                                 </a>
                             </th>
 
-                            <th>
-                                <a href="<?= $sortUrl('date') ?>" class="text-decoration-none">
+                            <th class="d-none d-lg-table-cell">
+                                <a href="<?= $sortLinks['date'] ?>" class="text-decoration-none">
                                     Release date
                                     <?php if ($order === 'date'): ?>
-                                        <?= strtolower($dir) === 'asc' ? '▲' : '▼' ?>
+                                        <?= $dir === 'asc' ? '▲' : '▼' ?>
                                     <?php endif; ?>
                                 </a>
                             </th>
 
-                            <th>Wishlist</th>
+                            <th class="d-none d-md-table-cell">Wishlist</th>
                         </tr>
                         </thead>
 
@@ -139,7 +135,7 @@
                         <?php foreach ($games as $game): ?>
                             <tr>
                                 <!-- Game cover -->
-                                <td>
+                                <td class="d-none d-lg-table-cell">
                                     <?php $img = $game->getImageUrlOrEmpty(); ?>
                                     <?php if ($img !== ''): ?>
                                         <a href="<?= $link->url('game.show', ['id' => $game->getId()]) ?>">
@@ -155,8 +151,27 @@
                                     <?php endif; ?>
                                 </td>
 
+                                <!-- Mobile-only: Cover image as grid -->
+                                <td class="d-lg-none p-2">
+                                    <?php $img = $game->getImageUrlOrEmpty(); ?>
+                                    <?php if ($img !== ''): ?>
+                                        <a href="<?= $link->url('game.show', ['id' => $game->getId()]) ?>">
+                                            <img src="<?= htmlspecialchars($img) ?>"
+                                                 alt="<?= htmlspecialchars($game->getName()) ?>"
+                                                 class="img-fluid"
+                                                 style="max-width: 100%; height: auto;">
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="<?= $link->url('game.show', ['id' => $game->getId()]) ?>"
+                                           class="d-flex align-items-center justify-content-center bg-light text-decoration-none"
+                                           style="min-height: 150px;">
+                                            Img
+                                        </a>
+                                    <?php endif; ?>
+                                </td>
+
                                 <!-- Name -->
-                                <td>
+                                <td class="d-none d-md-table-cell">
                                     <a href="<?= $link->url('game.show', ['id' => $game->getId()]) ?>"
                                        class="fw-semibold text-decoration-none">
                                         <?= htmlspecialchars($game->getName()) ?>
@@ -164,7 +179,7 @@
                                 </td>
 
                                 <!-- Tags -->
-                                <td>
+                                <td class="d-none d-lg-table-cell">
                                     <?php if ($game->isDlc()): ?>
                                         <span class="badge bg-secondary me-1">DLC</span>
                                     <?php endif; ?>
@@ -175,21 +190,21 @@
                                 </td>
 
                                 <!-- Price -->
-                                <td>
+                                <td class="d-none d-lg-table-cell">
                                     <?php $price = $game->getBasePriceEur(); ?>
                                     <?= $price !== null ? number_format($price, 2) . ' €' : 'N/A' ?>
                                 </td>
 
                                 <!-- Release date -->
-                                <td>
+                                <td class="d-none d-lg-table-cell">
                                     <?= htmlspecialchars($game->getGlobalReleaseDate() ?? 'TBA') ?>
                                 </td>
 
                                 <!-- Wishlist button -->
-                                <td>
+                                <td class="d-none d-md-table-cell">
                                     <?php if ($user->isLoggedIn()): ?>
 
-                                        <?php $inWishlist = in_array($game->getId(), $wishlistGameIds, true); ?>
+                                        <?php $inWishlist = isset($wishlistMap[$game->getId()]); ?>
 
                                         <?php if ($inWishlist): ?>
                                             <form method="post" action="<?= $link->url('wishlist.remove') ?>" class="d-inline">
@@ -225,43 +240,23 @@
                 <?php if ($totalPages > 1): ?>
                     <nav aria-label="Games pagination" class="mt-3">
                         <ul class="pagination justify-content-center">
-                            <?php
-                            // Helper to build page URL while preserving filters and sort
-                            $buildPageUrl = function (int $targetPage) use ($link, $order, $dir, $selectedGenres, $selectedPlatforms, $searchTerm): string {
-                                $params = [
-                                    'page' => $targetPage,
-                                    'order' => $order,
-                                    'dir' => strtolower($dir),
-                                ];
-                                if (!empty($searchTerm)) {
-                                    $params['search'] = $searchTerm;
-                                }
-                                foreach ($selectedGenres ?? [] as $gid) {
-                                    $params['genres'][] = $gid;
-                                }
-                                foreach ($selectedPlatforms ?? [] as $pid) {
-                                    $params['platforms'][] = $pid;
-                                }
-                                return $link->url('home.index', $params);
-                            };
-                            ?>
 
                             <!-- Previous page -->
-                            <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-                                <a class="page-link" href="<?= $page > 1 ? $buildPageUrl($page - 1) : '#' ?>" aria-label="Previous">
+                            <li class="page-item <?= $pagination['prev']['disabled'] ? 'disabled' : '' ?>">
+                                <a class="page-link" href="<?= $pagination['prev']['url'] ?>" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                 </a>
                             </li>
 
-                            <?php for ($p = 1; $p <= $totalPages; $p++): ?>
-                                <li class="page-item <?= $p === $page ? 'active' : '' ?>">
-                                    <a class="page-link" href="<?= $buildPageUrl($p) ?>"><?= $p ?></a>
+                            <?php foreach ($pagination['pages'] as $pg): ?>
+                                <li class="page-item <?= $pg['isActive'] ? 'active' : '' ?>">
+                                    <a class="page-link" href="<?= $pg['url'] ?>"><?= $pg['number'] ?></a>
                                 </li>
-                            <?php endfor; ?>
+                            <?php endforeach; ?>
 
                             <!-- Next page -->
-                            <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
-                                <a class="page-link" href="<?= $page < $totalPages ? $buildPageUrl($page + 1) : '#' ?>" aria-label="Next">
+                            <li class="page-item <?= $pagination['next']['disabled'] ? 'disabled' : '' ?>">
+                                <a class="page-link" href="<?= $pagination['next']['url'] ?>" aria-label="Next">
                                     <span aria-hidden="true">&raquo;</span>
                                 </a>
                             </li>

@@ -1,5 +1,5 @@
 <?php
-
+/*vypracované pomocou AI*/
 /** @var string $contentHTML */
 /** @var \Framework\Auth\AppUser $user */
 /** @var \Framework\Support\LinkGenerator $link */

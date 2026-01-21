@@ -1,5 +1,5 @@
 <?php
-
+/*vypracované pomocou AI*/
 namespace App\Controllers;
 
 use App\Models\Platform;
@@ -79,7 +79,7 @@ class PlatformController extends BaseController
         $platform = Platform::getOne($id);
         if ($platform) {
             // Najprv odstránime všetky väzby v game_platform (priame SQL cez GamePlatform)
-            GamePlatform::deleteAllByPlatform($id);
+            GamePlatform::deleteByPlatform($id);
             // Potom samotnú platformu
             $platform->delete();
         }

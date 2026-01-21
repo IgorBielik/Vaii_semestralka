@@ -1,5 +1,5 @@
 <?php
-
+/*vypracované pomocou AI*/
 namespace App\Models;
 
 use Framework\Core\Model;
@@ -116,13 +116,7 @@ class Game extends Model
         if ($this->id === null) {
             return [];
         }
-        $sql = 'SELECT g.* FROM genre g 
-                JOIN game_genre gg ON gg.genre_id = g.id 
-                WHERE gg.game_id = :gid
-                ORDER BY g.name';
-        $stmt = Connection::getInstance()->prepare($sql);
-        $stmt->execute(['gid' => $this->id]);
-        return $stmt->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, Genre::class);
+        return GameGenre::getGenresForGame($this->id);
     }
 
     /**
@@ -136,29 +130,7 @@ class Game extends Model
             return;
         }
 
-        $genreIds = array_values(array_unique(array_map('intval', $genreIds)));
-
-        $pdo = Connection::getInstance();
-        $pdo->beginTransaction();
-        try {
-            $del = $pdo->prepare('DELETE FROM game_genre WHERE game_id = :gid');
-            $del->execute(['gid' => $this->id]);
-
-            if (!empty($genreIds)) {
-                $ins = $pdo->prepare('INSERT INTO game_genre (game_id, genre_id) VALUES (:gid, :genre_id)');
-                foreach ($genreIds as $gid) {
-                    $ins->execute([
-                        'gid' => $this->id,
-                        'genre_id' => $gid,
-                    ]);
-                }
-            }
-
-            $pdo->commit();
-        } catch (\Throwable $e) {
-            $pdo->rollBack();
-            throw $e;
-        }
+        GameGenre::replaceForGame($this->id, $genreIds);
     }
 
     /** @return Platform[] */
@@ -167,13 +139,7 @@ class Game extends Model
         if ($this->id === null) {
             return [];
         }
-        $sql = 'SELECT p.* FROM platform p 
-                JOIN game_platform gp ON gp.platform_id = p.id 
-                WHERE gp.game_id = :gid
-                ORDER BY p.name';
-        $stmt = Connection::getInstance()->prepare($sql);
-        $stmt->execute(['gid' => $this->id]);
-        return $stmt->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, Platform::class);
+        return GamePlatform::getPlatformsForGame($this->id);
     }
 
     /**
@@ -190,31 +156,7 @@ class Game extends Model
             return;
         }
 
-        $platformIds = array_values(array_unique(array_map('intval', $platformIds)));
-
-        $pdo = Connection::getInstance();
-        $pdo->beginTransaction();
-        try {
-            $del = $pdo->prepare('DELETE FROM game_platform WHERE game_id = :gid');
-            $del->execute(['gid' => $this->id]);
-
-            if (!empty($platformIds)) {
-                $ins = $pdo->prepare('INSERT INTO game_platform (game_id, platform_id, release_date, price_eur) VALUES (:gid, :pid, :rdate, :price)');
-                foreach ($platformIds as $pid) {
-                    $ins->execute([
-                        'gid' => $this->id,
-                        'pid' => $pid,
-                        'rdate' => $releaseDate,
-                        'price' => $priceEur,
-                    ]);
-                }
-            }
-
-            $pdo->commit();
-        } catch (\Throwable $e) {
-            $pdo->rollBack();
-            throw $e;
-        }
+        GamePlatform::replaceForGame($this->id, $platformIds, $releaseDate, $priceEur);
     }
 
     public function getDescription(): string
@@ -226,6 +168,37 @@ class Game extends Model
     {
         $this->description = $description;
     }
+
+    /**
+     * Delete this game and all related records (game_genre, game_platform, wishlist).
+     * Uses respective models to handle deletions.
+     * Returns true on success, false if game has no ID.
+     */
+    public function deleteWithRelations(): bool
+    {
+        if ($this->id === null) {
+            return false;
+        }
+
+        $pdo = Connection::getInstance();
+        $pdo->beginTransaction();
+        try {
+            // Delete relations using their respective models
+            GameGenre::deleteByGame($this->id);
+            GamePlatform::deleteByGame($this->id);
+            Wishlist::deleteByGame($this->id);
+
+            // Finally delete the game itself
+            $this->delete();
+
+            $pdo->commit();
+            return true;
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
 
     /**
      * Filter games by selected genre IDs, platform IDs and optional search term.

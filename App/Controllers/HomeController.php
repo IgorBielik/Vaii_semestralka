@@ -1,5 +1,5 @@
 <?php
-
+/*vypracované pomocou AI*/
 namespace App\Controllers;
 
 use App\Models\Game;
@@ -43,70 +43,26 @@ class HomeController extends BaseController
      */
     public function index(Request $request): Response
     {
-        $order = $request->get('order') ?? 'date';   // name|price|date
-        $dir   = strtolower($request->get('dir') ?? 'asc') === 'desc' ? 'DESC' : 'ASC';
+        [$order, $dir, $orderBy] = $this->resolveSort($request);
 
-        // základný ORDER BY podľa parametrov
-        switch ($order) {
-            case 'name':
-                $orderBy = "name $dir";
-                break;
-            case 'price':
-                $orderBy = "base_price_eur $dir";
-                break;
-            case 'date':
-            default:
-                // najprv hry s najbližším dátumom, NULL (TBA) na koniec
-                $orderBy = "(global_release_date IS NULL), global_release_date $dir";
-                $order   = 'date';
-                break;
-        }
+        [$genreIds, $platformIds, $search, $page] = $this->readFilters($request);
 
-        // Pagination params
-        $perPage = 5;
-        $page = max(1, (int)($request->get('page') ?? 1));
+        $allGames = $this->fetchGames($genreIds, $platformIds, $search, $orderBy);
+        [$games, $page, $totalPages] = $this->paginateGames($allGames, $page, 5);
 
-        // Filters from GET
-        $genreIds = $request->get('genres') ?? [];
-        $platformIds = $request->get('platforms') ?? [];
-        $search = $request->get('search') ?? null;
+        [$wishlistIds, $wishlistMap] = $this->buildWishlistMap();
 
-        $genreIds = array_values(array_filter(array_map('intval', (array)$genreIds)));
-        $platformIds = array_values(array_filter(array_map('intval', (array)$platformIds)));
-        $search = $search !== null ? trim((string)$search) : null;
-
-        // Get all matching games (for now) and then paginate in PHP
-        if (!empty($genreIds) || !empty($platformIds) || ($search !== null && $search !== '')) {
-            $allGames = Game::filterGames($genreIds, $platformIds, $search);
-        } else {
-            $allGames = Game::getAll(null, [], $orderBy);
-        }
-
-        $totalGames = count($allGames);
-        $totalPages = max(1, (int)ceil($totalGames / $perPage));
-        if ($page > $totalPages) {
-            $page = $totalPages;
-        }
-        $offset = ($page - 1) * $perPage;
-        $games = array_slice($allGames, $offset, $perPage);
-
-        // Zoznam game_id, ktoré má aktuálny používateľ vo wishliste
-        $wishlistGameIds = [];
-        if ($this->user->isLoggedIn()) {
-            $items = Wishlist::forUser($this->user->getId());
-            foreach ($items as $item) {
-                /** @var Wishlist $item */
-                $wishlistGameIds[] = $item->getGameId();
-            }
-        }
-
-        // Pre filter navbar na hlavnej stránke – všetky žánre a platformy
         $genres    = Genre::getAll();
         $platforms = Platform::getAll();
 
+        $baseParams = $this->buildBaseParams($order, $dir, $genreIds, $platformIds, $search);
+        $sortLinks  = $this->buildSortLinks($baseParams, $order, $dir);
+        $pagination = $this->buildPagination($baseParams, $page, $totalPages);
+
         return $this->html([
             'games'             => $games,
-            'wishlistGameIds'   => $wishlistGameIds,
+            'wishlistGameIds'   => $wishlistIds,
+            'wishlistMap'       => $wishlistMap,
             'order'             => $order,
             'dir'               => $dir,
             'genres'            => $genres,
@@ -116,6 +72,8 @@ class HomeController extends BaseController
             'searchTerm'        => $search,
             'page'              => $page,
             'totalPages'        => $totalPages,
+            'sortLinks'         => $sortLinks,
+            'pagination'        => $pagination,
         ]);
     }
 
@@ -130,5 +88,126 @@ class HomeController extends BaseController
     public function contact(Request $request): Response
     {
         return $this->html();
+    }
+
+    private function resolveSort(Request $request): array
+    {
+        $orderParam = $request->get('order') ?? 'date';
+        $dirParam   = strtolower($request->get('dir') ?? 'asc');
+        $dir        = $dirParam === 'desc' ? 'desc' : 'asc';
+        $dirSql     = strtoupper($dir);
+
+        switch ($orderParam) {
+            case 'name':
+                return ['name', $dir, "name $dirSql"];
+            case 'price':
+                return ['price', $dir, "base_price_eur $dirSql"];
+            case 'date':
+            default:
+                return ['date', $dir, "(global_release_date IS NULL), global_release_date $dirSql"];
+        }
+    }
+
+    private function readFilters(Request $request): array
+    {
+        $genreIds    = array_values(array_filter(array_map('intval', (array)($request->get('genres') ?? []))));
+        $platformIds = array_values(array_filter(array_map('intval', (array)($request->get('platforms') ?? []))));
+        $searchRaw   = $request->get('search');
+        $search      = $searchRaw !== null ? trim((string)$searchRaw) : null;
+        $page        = max(1, (int)($request->get('page') ?? 1));
+
+        return [$genreIds, $platformIds, $search, $page];
+    }
+
+    private function fetchGames(array $genreIds, array $platformIds, ?string $search, string $orderBy): array
+    {
+        $hasFilters = !empty($genreIds) || !empty($platformIds) || ($search !== null && $search !== '');
+        return $hasFilters
+            ? Game::filterGames($genreIds, $platformIds, $search)
+            : Game::getAll(null, [], $orderBy);
+    }
+
+    private function paginateGames(array $allGames, int $page, int $perPage): array
+    {
+        $totalGames = count($allGames);
+        $totalPages = max(1, (int)ceil($totalGames / $perPage));
+        $page       = min($page, $totalPages);
+        $offset     = ($page - 1) * $perPage;
+        $games      = array_slice($allGames, $offset, $perPage);
+
+        return [$games, $page, $totalPages];
+    }
+
+    private function buildWishlistMap(): array
+    {
+        $ids  = [];
+        $map  = [];
+
+        if ($this->user->isLoggedIn()) {
+            $items = Wishlist::forUser($this->user->getId());
+            foreach ($items as $item) {
+                /** @var Wishlist $item */
+                $gid      = $item->getGameId();
+                $ids[]    = $gid;
+                $map[$gid] = true;
+            }
+        }
+
+        return [$ids, $map];
+    }
+
+    private function buildBaseParams(string $order, string $dir, array $genreIds, array $platformIds, ?string $search): array
+    {
+        $params = ['order' => $order, 'dir' => $dir];
+        if ($search !== null && $search !== '') {
+            $params['search'] = $search;
+        }
+        if (!empty($genreIds)) {
+            $params['genres'] = $genreIds;
+        }
+        if (!empty($platformIds)) {
+            $params['platforms'] = $platformIds;
+        }
+        return $params;
+    }
+
+    private function buildSortLinks(array $baseParams, string $order, string $dir): array
+    {
+        $links = [];
+        foreach (['name', 'price', 'date'] as $col) {
+            $nextDir   = ($order === $col && $dir === 'asc') ? 'desc' : 'asc';
+            $links[$col] = $this->url('home.index', array_merge($baseParams, [
+                'order' => $col,
+                'dir'   => $nextDir,
+                'page'  => 1,
+            ]));
+        }
+        return $links;
+    }
+
+    private function buildPagination(array $baseParams, int $page, int $totalPages): array
+    {
+        $buildUrl = fn(int $targetPage) => $this->url('home.index', array_merge($baseParams, ['page' => $targetPage]));
+
+        $pages = [];
+        for ($p = 1; $p <= $totalPages; $p++) {
+            $pages[] = [
+                'number'   => $p,
+                'url'      => $buildUrl($p),
+                'isActive' => $p === $page,
+            ];
+        }
+
+        return [
+            'prev' => [
+                'url'      => $page > 1 ? $buildUrl($page - 1) : '#',
+                'disabled' => $page <= 1,
+            ],
+            'next' => [
+                'url'      => $page < $totalPages ? $buildUrl($page + 1) : '#',
+                'disabled' => $page >= $totalPages,
+            ],
+            'pages' => $pages,
+        ];
     }
 }

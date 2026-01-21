@@ -1,4 +1,5 @@
 <?php
+/*vypracované pomocou AI*/
 /** @var \Framework\Support\LinkGenerator $link */
 /** @var \App\Models\Genre[] $genres */
 /** @var \App\Models\Platform[] $platforms */

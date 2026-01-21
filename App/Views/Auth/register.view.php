@@ -1,5 +1,5 @@
 <?php
-
+/*vypracované pomocou AI*/
 /** @var array $errors */
 /** @var string|null $name */
 /** @var string|null $email */

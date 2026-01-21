@@ -1,5 +1,5 @@
 <?php
-
+/*vypracované pomocou AI*/
 namespace App\Controllers;
 
 use App\Models\Genre;
@@ -79,7 +79,7 @@ class GenreController extends BaseController
         $genre = Genre::getOne($id);
         if ($genre) {
             // Najprv odstránime všetky väzby v game_genre (priame SQL cez GameGenre)
-            GameGenre::deleteAllByGenre($id);
+            GameGenre::deleteByGenre($id);
             // Potom samotný žáner
             $genre->delete();
         }

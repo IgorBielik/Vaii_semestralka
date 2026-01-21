@@ -1,5 +1,5 @@
 <?php
-
+/*vypracované pomocou AI*/
 /** @var \Framework\Http\HttpException $exception */
 /** @var bool $showDetail */
 /** @var \Framework\Support\View $view */

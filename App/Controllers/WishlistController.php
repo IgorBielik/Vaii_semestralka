@@ -1,5 +1,5 @@
 <?php
-
+/*vypracované pomocou AI*/
 namespace App\Controllers;
 
 use App\Models\Wishlist;
@@ -20,18 +20,22 @@ class WishlistController extends BaseController
     public function index(Request $request): Response
     {
         $userId = $this->user->getId();
-
         $items = Wishlist::forUser($userId);
 
-        // Doplníme k wishlist položkám informácie o hre (názov, dátum vydania)
+        // Doplníme k wishlist položkám informácie o hre a pripravíme dáta pre view
         $games = [];
         foreach ($items as $item) {
             /** @var Wishlist $item */
             $game = Game::getOne($item->getGameId());
             if ($game) {
                 $games[] = [
-                    'wishlist' => $item,
-                    'game' => $game,
+                    'wishlist'   => $item,
+                    'game'       => $game,
+                    'name'       => $game->getName(),
+                    'nameLower'  => strtolower($game->getName()),
+                    'releaseDate'=> $game->getGlobalReleaseDate() ?? '',
+                    'imageUrl'   => $game->getImageUrl() ?? '',
+                    'removeUrl'  => $this->url('wishlist.remove'),
                 ];
             }
         }
